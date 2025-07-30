@@ -31,4 +31,4 @@ const menuSchema = new  mongoose.Schema<IMenuDocumnet>({
     }
 }, {timestamps: true})
 
-export const Menu = mongoose.model("Menu" , menuSchema)
+export const Menu = mongoose.model<IMenuDocumnet>("Menu" , menuSchema)

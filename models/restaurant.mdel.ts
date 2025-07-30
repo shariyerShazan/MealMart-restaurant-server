@@ -51,4 +51,4 @@ const restaurantSchema = new mongoose.Schema<IRestauratDocument>({
         }
 } ,{timestamps: true}) 
 
-export const Restaurant = mongoose.model("Restaurant" , restaurantSchema)
+export const Restaurant = mongoose.model<IRestauratDocument>("Restaurant" , restaurantSchema)
