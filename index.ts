@@ -4,9 +4,11 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors"; 
 import { connectDB } from "./db/connectDB";
+import userRoutes from "./routes/user.route"
 
 const app = express();
 
+// middlewares here
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -15,12 +17,16 @@ app.use(cors({
     credentials: true
 }));
 
+
+// api here
 app.get("/", (req, res) => {
     res.status(200).json({ message: "server is running", success: true });
 });
+app.use("api/users" , userRoutes)
+
+
 
 const PORT = process.env.PORT || 7001;
-
 const runServer = async () => {
     try {
         await connectDB();
