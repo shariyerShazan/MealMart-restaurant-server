@@ -1,6 +1,26 @@
+
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
+export interface IUser {
+    fullName : string ,
+    email: string , 
+    password: string ,
+    contact : number ,
+    address: string ,
+    city : string ,
+    country : string ,
+    profile: string ,
+    admin: boolean ,
+    lastLogin?: Date ,
+    isVerified?: boolean ,
+    resetPasswordToken?: String  ,
+    resetPasswordTokenExpiresdAt?: Date ,
+    verificationToken?: String  ,
+    verificationTokenExpiresdAt?: Date ,
+}
+
+
+const userSchema = new mongoose.Schema<IUser>({
     fullName : {
         type: String ,
         required: true
@@ -9,7 +29,11 @@ const userSchema = new mongoose.Schema({
         type: String ,
         required: true ,
     }, 
-    constact : {
+     password: {
+       type : String ,
+       required: true
+    },
+    contact : {
         type: Number ,
         required: true
     },
