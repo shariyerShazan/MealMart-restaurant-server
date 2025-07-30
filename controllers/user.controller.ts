@@ -121,3 +121,19 @@ export const verifyEmail = async (req : Request , res: Response){
         })
     }
 }
+
+
+export const logout = async (req : Request , res: Response){
+    try {
+        return res.clearCookie("token" ).status(200).json({
+            message: "User Logged out successfully", 
+            success: false
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+           message : "Internal server error" ,
+           success: false
+        }) 
+    }
+}
