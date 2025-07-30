@@ -3,6 +3,8 @@ import { User } from "../models/user.model"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
+import cloudinary from "../utils/cloudinary"
+import { generateVerificationCode } from "../utils/generateVerificationCode"
 
 export const register = async (req:Request , res: Response)=>{
     try {
@@ -21,7 +23,7 @@ export const register = async (req:Request , res: Response)=>{
             })
         }
         const hashedPassword = await bcrypt.hash(password , 10)
-        const verificationToken = "peea"
+        const verificationToken = generateVerificationCode()
 
         const newUser = await User.create({
             fullName ,
@@ -71,12 +73,13 @@ export const login = async (req: Request , res: Response)=>{
                 success: false
               })
         }
+        const token = jwt.sign({userId : user._id} , process.env.SECRET_KEY , {expriresIn : "7d"})
 
-        // generateToken(req , user)
         user.lastLogin = new Date()
         await user.save()
         const userWithoutPassword = await User.findOne({email}).select("-password")
-        return res.status(200).json({
+
+        return res.cookie("token" , token , {httpOnly: true , sameSite: "strict" , maxAge: 7*24*60*60*1000}).status(200).json({
             message : `Welcome back ${user.fullName}` ,
             user :  userWithoutPassword ,
             success: true
@@ -236,22 +239,45 @@ export const chectAuth = async (req : Request , res: Response)=>{
 
 
 
-export const updateProfile = async (req: Request , res: Response)=>{
+export const updateProfile = async (req: Request, res: Response) => {
     try {
-        const userId = req.userId 
-        const user = await User.findById(userId)
-        if(!user){
+        const userId = req.userId;
+        const user = await User.findById(userId).select("-password");
+        if (!user) {
             return res.status(404).json({
-                message : "User not found" ,
+                message: "User not found",
                 success: false
-            })
+            });
         }
-        
+
+        const { fullName, address, city, country, profilePicture } = req.body;
+
+        let cloudResponse: any;
+        if (profilePicture) {
+            if (!profilePicture.startsWith("data:image")) {
+                return res.status(400).json({ success: false, message: "Invalid image format" });
+            }
+            cloudResponse = await cloudinary.uploader.upload(profilePicture);
+        }       
+
+        if (fullName) user.fullName = fullName;
+        if (address) user.address = address;
+        if (city) user.city = city;
+        if (country) user.country = country;
+        if (cloudResponse) user.profilePicture = cloudResponse.secure_url;
+
+        await user.save()
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user
+        });
     } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).json({
-           message : "Internal server error" ,
-           success: false
-        }) 
+            message: "Internal server error",
+            success: false
+        });
     }
-}
+};
