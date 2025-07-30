@@ -1,5 +1,5 @@
 
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface IUser {
     fullName : string ,
@@ -18,9 +18,12 @@ export interface IUser {
     verificationToken?: String  ,
     verificationTokenExpiresdAt?: Date ,
 }
+export interface IUserDocument extends IUser ,  Document {
+    createdAt: Date ,
+    updatedAt : Date
+}
 
-
-const userSchema = new mongoose.Schema<IUser>({
+const userSchema = new mongoose.Schema<IUserDocument>({
     fullName : {
         type: String ,
         required: true
