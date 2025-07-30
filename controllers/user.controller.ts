@@ -70,7 +70,7 @@ export const login = async (req: Request , res: Response){
                 success: false
               })
         }
-        
+
         // generateToken(req , user)
         user.lastLogin = new Date()
         await user.save()
@@ -79,6 +79,39 @@ export const login = async (req: Request , res: Response){
             message : `Welcome back ${user.fullName}` ,
             user :  userWithoutPassword ,
             success: true
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+           message : "Internal server error" ,
+           success: false
+        })
+    }
+}
+
+
+export const verifyEmail = async (req : Request , res: Response){
+    try {
+          const {verificationCode} = req.body
+          const user = await User.findOne({verificationToken: verificationCode , verificationTokenExpiresdAt: {gt: Date.now()}}).select("-password")
+
+          if(!user){
+            return res.status(400).json({
+                  success: false ,
+                  message : "Invalid or expired verification token"
+            })
+          }
+          user.isVerified = true 
+          user.verificationToken = undefined 
+          user.verificationTokenExpiresdAt = undefined 
+          await user.save()
+
+        //  send Welcome email
+        // await sendWelcomeEmail(user.email , user.fullName)
+        return res.status(200).json({
+            success: true , 
+            message : "User varification succesfully" ,
+            user
         })
     } catch (error) {
         console.log(error)
