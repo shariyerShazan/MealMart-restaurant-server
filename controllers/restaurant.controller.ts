@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Restaurant } from "../models/restaurant.mdel";
 import uploadImageOnCloudinary from "../utils/uploadImageOnCloudinary";
+import { Order } from "../models/order.model";
 
 export const createRestaurant = async (req: Request, res: Response) => {
     try {
@@ -29,7 +30,7 @@ export const createRestaurant = async (req: Request, res: Response) => {
             owner: userId,
             restaurantName,
             deliveryTime,
-            cuisines: JSON.parse(cuisines),
+            cuisines: cuisines.split(",").map((c: string) => c.trim()),
             city,
             country,
             coverImage: cloudinaryUrl
@@ -75,3 +76,40 @@ export const getOwnRestaurant = async (req : Request, res: Response)=>{
         });
     }
 }
+
+
+export const updateRestaurant = async (req : Request , res: Response)=>{
+    try {
+        const userId = req.userId
+        const { restaurantName, deliveryTime, cuisines, city, country, coverImage } = req.body;
+        const restaurant = await Restaurant.findOne({owner: userId})
+        if(!restaurant){
+            return res.status(404).json({
+                message: "Restaurant not found",
+                success: false
+            })
+        }
+       if(restaurantName) {restaurant.restaurantName = restaurantName}
+       if(deliveryTime) {restaurant.deliveryTime = deliveryTime}
+       if(cuisines) {restaurant.cuisines = cuisines.split(",").map((c: string) => c.trim())}
+       if(city) {restaurant.city = city}
+       if(country) {restaurant.country = country}
+       if(coverImage) {
+        const cloudinaryUrl = await uploadImageOnCloudinary(coverImage)
+        restaurant.coverImage = cloudinaryUrl
+        }
+        await  restaurant.save()
+        return res.status(200).json({
+            message : "Update restaurant successfully",
+            success: true ,
+            restaurant ,
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false 
+        });
+    }
+}
+
