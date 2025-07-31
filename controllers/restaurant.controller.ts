@@ -114,6 +114,8 @@ export const updateRestaurant = async (req : Request , res: Response)=>{
 }
 
 
+
+
 export const getRestaurantOrder = async (req: Request, res: Response) => {
     try {
         const userId = req.userId;
@@ -142,6 +144,36 @@ export const getRestaurantOrder = async (req: Request, res: Response) => {
         });
     }
 };
+
+
+
+
+
+export const updateOrderStatus = async (req: Request, res: Response) => {
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            })
+        }
+        order.status = status;
+        await order.save();
+        return res.status(200).json({
+            success: true,
+            status:order.status,
+            message: "Status updated"
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
 
 
 
