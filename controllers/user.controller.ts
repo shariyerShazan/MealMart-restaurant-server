@@ -6,6 +6,7 @@ import crypto from "crypto"
 import cloudinary from "../utils/cloudinary"
 import { generateVerificationCode } from "../utils/generateVerificationCode"
 import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email"
+import uploadImageOnCloudinary from "../utils/uploadImageOnCloudinary"
 
 export const register = async (req:Request , res: Response)=>{
     try {
@@ -255,20 +256,14 @@ export const updateProfile = async (req: Request, res: Response) => {
 
         const { fullName, address, city, country, profilePicture } = req.body;
 
-        let cloudResponse: any;
-        if (profilePicture) {
-            if (!profilePicture.startsWith("data:image")) {
-                return res.status(400).json({ success: false, message: "Invalid image format" });
-            }
-            cloudResponse = await cloudinary.uploader.upload(profilePicture);
-        }       
-
         if (fullName) user.fullName = fullName;
         if (address) user.address = address;
         if (city) user.city = city;
         if (country) user.country = country;
-        if (cloudResponse) user.profilePicture = cloudResponse.secure_url;
-
+        if (profilePicture) {
+            user.profilePicture = await uploadImageOnCloudinary(profilePicture);
+        }    
+        
         await user.save()
 
         return res.status(200).json({
