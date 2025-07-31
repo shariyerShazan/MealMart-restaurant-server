@@ -113,3 +113,32 @@ export const updateRestaurant = async (req : Request , res: Response)=>{
     }
 }
 
+
+export const getRestaurantOrder = async (req: Request, res: Response) => {
+    try {
+        const userId = req.userId;
+        const restaurant = await Restaurant.findOne({ owner: userId });
+        if (!restaurant) {
+            return res.status(404).json({
+                message: "Restaurant not found",
+                success: false
+            });
+        }
+        const orders = await Order.find({ restaurant: restaurant._id })
+            .populate({ path: "owner", select: "fullName email" })       
+            .populate({ path: "restaurant", select: "restaurantName city country" }) 
+            .sort({ createdAt: -1 });  
+        return res.status(200).json({
+            message: "Orders fetched successfully",
+            success: true,
+            orders
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
+    }
+};
