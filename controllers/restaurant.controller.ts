@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Restaurant } from "../models/restaurant.mdel";
+import { Restaurant } from "../models/restaurant.model";
 import uploadImageOnCloudinary from "../utils/uploadImageOnCloudinary";
 import { Order } from "../models/order.model";
 
@@ -24,7 +24,7 @@ export const createRestaurant = async (req: Request, res: Response) => {
         }
 
         // Upload to Cloudinary
-        const cloudinaryUrl = await uploadImageOnCloudinary(coverImage);
+        const cloudinaryUrl = await uploadImageOnCloudinary(coverImage as Express.Multer.File);
 
         const newRestaurant = await Restaurant.create({
             owner: userId,
@@ -95,7 +95,7 @@ export const updateRestaurant = async (req : Request , res: Response)=>{
        if(city) {restaurant.city = city}
        if(country) {restaurant.country = country}
        if(coverImage) {
-        const cloudinaryUrl = await uploadImageOnCloudinary(coverImage)
+        const cloudinaryUrl = await uploadImageOnCloudinary(coverImage as Express.Multer.File)
         restaurant.coverImage = cloudinaryUrl
         }
         await  restaurant.save()

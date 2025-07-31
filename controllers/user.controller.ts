@@ -261,9 +261,9 @@ export const updateProfile = async (req: Request, res: Response) => {
         if (city) user.city = city;
         if (country) user.country = country;
         if (profilePicture) {
-            user.profilePicture = await uploadImageOnCloudinary(profilePicture);
+            user.profilePicture = await uploadImageOnCloudinary(profilePicture as Express.Multer.File);
         }    
-        
+
         await user.save()
 
         return res.status(200).json({
