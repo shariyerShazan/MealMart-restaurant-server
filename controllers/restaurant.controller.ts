@@ -142,3 +142,60 @@ export const getRestaurantOrder = async (req: Request, res: Response) => {
         });
     }
 };
+
+
+
+export const searchRestaurant = async (req: Request, res: Response) => {
+    try {
+        const { searchText, cuisines, page = 1, limit = 10 } = req.query;
+
+        const query: any = {};
+        // Text search
+        if (searchText && searchText !== "") {
+            query.$or = [
+                { restaurantName: { $regex: searchText, $options: "i" } },
+                { city: { $regex: searchText, $options: "i" } },
+                { country: { $regex: searchText, $options: "i" } }
+            ];
+        }
+
+        // Cuisines filter
+        if (cuisines) {
+            const cuisinesArray = (cuisines as string).split(",").map(c => c.trim());
+            query.cuisines = { $in: cuisinesArray };
+        }
+
+        // Pagination
+        const pageNumber = parseInt(page as string) || 1;
+        const pageSize = parseInt(limit as string) || 10;
+        const skip = (pageNumber - 1) * pageSize;
+
+        const restaurants = await Restaurant.find(query)
+            .skip(skip)
+            .limit(pageSize)
+            .sort({ createdAt: -1 });
+
+        const total = await Restaurant.countDocuments(query);
+
+        return res.status(200).json({
+            success: true,
+            message: "Restaurants fetched successfully",
+            restaurants,
+            pagination: {
+                total,
+                page: pageNumber,
+                limit: pageSize,
+                totalPages: Math.ceil(total / pageSize),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
+    }
+};
+
+
+
