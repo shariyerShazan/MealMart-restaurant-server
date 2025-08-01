@@ -56,7 +56,10 @@ export const createRestaurant = async (req: Request, res: Response) => {
 export const getOwnRestaurant = async (req : Request, res: Response)=>{
     try {
         const userId = req.userId
-        const restaurant = await Restaurant.findOne({owner: userId})
+        const restaurant = await Restaurant.findOne({owner: userId}).populate({
+            path: "menus" , options: {createdAt: -1}
+        })
+        
         if(!restaurant){
             return res.status(404).json({
                 message: "Restaurant not found",

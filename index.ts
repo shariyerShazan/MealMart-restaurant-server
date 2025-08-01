@@ -6,6 +6,7 @@ import cors from "cors";
 import { connectDB } from "./db/connectDB";
 import userRoutes from "./routes/user.route"
 import restaurantRoutes from "./routes/restaurant.route"
+import menuRoutes from "./routes/menu.route"
 
 const app = express();
 
@@ -24,7 +25,8 @@ app.get("/", (req, res) => {
     res.status(200).json({ message: "server is running", success: true });
 });
 app.use("api/users" , userRoutes)
-app.use("api/restaurants" , restaurantRoutes)
+app.use("api/restaurants" , restaurantRoutes) 
+app.use("api/menus" , menuRoutes)
 
 
 

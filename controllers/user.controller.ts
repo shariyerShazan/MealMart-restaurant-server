@@ -3,7 +3,7 @@ import { User } from "../models/user.model"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
-import cloudinary from "../utils/cloudinary"
+// import cloudinary from "../utils/cloudinary"
 import { generateVerificationCode } from "../utils/generateVerificationCode"
 import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email"
 import uploadImageOnCloudinary from "../utils/uploadImageOnCloudinary"
@@ -24,7 +24,37 @@ export const register = async (req:Request , res: Response)=>{
                 success: false
             })
         }
+
+        // password validation
+        if (password.length < 6) {
+            return res.status(400).json({
+              success: false,
+              message: "Password must be at least 6 characters long.",
+            });
+          }
+          if (!/[a-z]/.test(password)) {
+            return res.status(400).json({
+              success: false,
+              message: "Password must contain at least one lower letter",
+            });
+          }
+          if (!/[A-Z]/.test(password)) {
+            return res.status(400).json({
+              success: false,
+              message: "Password must contain at least one upper letter",
+            });
+          }
+    
+          if (!/\d/.test(password)) {
+            return res.status(400).json({
+              success: false,
+              message: "Password must contain at least one number",
+            });
+          }
+    
+        //   hash password
         const hashedPassword = await bcrypt.hash(password , 10)
+        // generate verification code
         const verificationToken = generateVerificationCode()
 
         const newUser = await User.create({
@@ -76,7 +106,7 @@ export const login = async (req: Request , res: Response)=>{
                 success: false
               })
         }
-        const token = jwt.sign({userId : user._id} , process.env.SECRET_KEY , {expriresIn : "7d"})
+        const token = jwt.sign({userId : user._id} , process.env.SECRET_KEY! , {expiresIn : "7d"})
 
         user.lastLogin = new Date()
         await user.save()
@@ -242,6 +272,7 @@ export const chectAuth = async (req : Request , res: Response)=>{
 }
 
 
+  
 
 export const updateProfile = async (req: Request, res: Response) => {
     try {

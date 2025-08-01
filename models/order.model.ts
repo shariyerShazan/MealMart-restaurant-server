@@ -16,7 +16,7 @@ type ICartItem = {
 };
 
 export interface IOrder extends Document {
-    owner: mongoose.Schema.Types.ObjectId;
+    orderBy: mongoose.Schema.Types.ObjectId;
     restaurant: mongoose.Schema.Types.ObjectId;
     deliveryInfo: IDeliveryInfo;
     cartItems: ICartItem[];
@@ -26,7 +26,7 @@ export interface IOrder extends Document {
 
 const orderSchema = new mongoose.Schema<IOrder>(
     {
-        owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        orderBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
         restaurant: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant", required: true },
         deliveryInfo: {
             email: { type: String, required: true },
