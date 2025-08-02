@@ -60,7 +60,7 @@ export const register = async (req:Request , res: Response)=>{
             contact ,
             password : hashedPassword ,
             verificationToken ,
-            verificationTokenExpiresdAt : Date.now()+1*60*60*1000 ,
+            verificationTokenExpiresdAt : new Date(Date.now() + 1*60*60*1000) ,
         })
         // send verification email
         await sendVerificationEmail(email , verificationToken)
@@ -97,12 +97,12 @@ export const login = async (req: Request , res: Response)=>{
                 success: false
               })
         }
-        if(!user.isVerified){
-            return res.status(400).json({
-                message : "You are not verified user" ,
-                success: false
-            })
-        }
+        // if(!user.isVerified){
+        //     return res.status(400).json({
+        //         message : "You are not verified user" ,
+        //         success: false
+        //     })
+        // }
         const matchPassword = await bcrypt.compare(password , user?.password)
         if(!matchPassword){
               return res.status(400).json({
@@ -134,7 +134,7 @@ export const login = async (req: Request , res: Response)=>{
 export const verifyEmail = async (req : Request , res: Response)=>{
     try {
           const {verificationCode} = req.body
-          const user = await User.findOne({verificationToken: verificationCode , verificationTokenExpiresdAt: {gt: Date.now()}}).select("-password")
+          const user = await User.findOne({verificationToken: verificationCode , verificationTokenExpiresdAt: { $gt: new Date()}}).select("-password")
 
           if(!user){
             return res.status(400).json({
