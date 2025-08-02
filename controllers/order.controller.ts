@@ -9,7 +9,7 @@ type CheckoutSessionRequest = {
     cartItems:{
         menuId : string,
         foodName: string , 
-        price  : string,
+        price  : number,
         foodImage : string ,
         quantity: number
 
@@ -86,16 +86,16 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
 
 export const createLineItems = async (checkoutSessionRequest :CheckoutSessionRequest  , menuItems :any )=>{
     const lineItems = checkoutSessionRequest.cartItems.map((cartItem)=>{
-        const menuItem =  menuItems.find((item)=>(item._id === cartItem.menuId))
+        const menuItem =  menuItems.find((item)=>(item._id.toString() === cartItem.menuId))
         if(!menuItem) throw new Error(`Menu item id not found`)
         return {
            price_data: {
             currency: "usd" ,
             product_data: {
-                foodName : menuItem.foodName ,
-                foodImage: menuItem.foodImage ,
+                name : menuItem.foodName,
+                images: [menuItem.foodImage]
             },
-            unit_ammount: menuItem.price * 100
+            unit_ammount: Number(menuItem.price) * 100
            },
            quantity: cartItem.quantity ,
           

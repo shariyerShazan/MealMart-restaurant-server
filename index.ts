@@ -7,6 +7,7 @@ import { connectDB } from "./db/connectDB";
 import userRoutes from "./routes/user.route"
 import restaurantRoutes from "./routes/restaurant.route"
 import menuRoutes from "./routes/menu.route"
+import orderRoutes from "./routes/order.route"
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 app.use("api/users" , userRoutes)
 app.use("api/restaurants" , restaurantRoutes) 
 app.use("api/menus" , menuRoutes)
+app.use("api/orders" , orderRoutes)
 
 
 
