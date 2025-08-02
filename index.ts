@@ -25,10 +25,10 @@ app.use(cors({
 app.get("/", (req, res) => {
     res.status(200).json({ message: "server is running", success: true });
 });
-app.use("api/users" , userRoutes)
-app.use("api/restaurants" , restaurantRoutes) 
-app.use("api/menus" , menuRoutes)
-app.use("api/orders" , orderRoutes)
+app.use("/api/users" , userRoutes)
+app.use("/api/restaurants" , restaurantRoutes) 
+app.use("/api/menus" , menuRoutes)
+app.use("/api/orders" , orderRoutes)
 
 
 

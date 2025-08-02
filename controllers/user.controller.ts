@@ -7,10 +7,14 @@ import crypto from "crypto"
 import { generateVerificationCode } from "../utils/generateVerificationCode"
 import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email"
 import uploadImageOnCloudinary from "../utils/uploadImageOnCloudinary"
+import dotenv from "dotenv"
+dotenv.config()
+
 
 export const register = async (req:Request , res: Response)=>{
     try {
         const {fullName , email , password, contact} = req.body
+        // console.log(fullName , email , password, contact)
         if(!fullName || !email || !password || !contact){
             return res.status(403).json({
                 message : "something is missing" ,
@@ -32,19 +36,12 @@ export const register = async (req:Request , res: Response)=>{
               message: "Password must be at least 6 characters long.",
             });
           }
-          if (!/[a-z]/.test(password)) {
+          if (!/[a-zA-Z]/.test(password)) {
             return res.status(400).json({
               success: false,
-              message: "Password must contain at least one lower letter",
+              message: "Password must contain at least one  letter",
             });
-          }
-          if (!/[A-Z]/.test(password)) {
-            return res.status(400).json({
-              success: false,
-              message: "Password must contain at least one upper letter",
-            });
-          }
-    
+          }    
           if (!/\d/.test(password)) {
             return res.status(400).json({
               success: false,
@@ -60,6 +57,7 @@ export const register = async (req:Request , res: Response)=>{
         const newUser = await User.create({
             fullName ,
             email ,
+            contact ,
             password : hashedPassword ,
             verificationToken ,
             verificationTokenExpiresdAt : Date.now()+1*60*60*1000 ,
@@ -98,6 +96,12 @@ export const login = async (req: Request , res: Response)=>{
                 message : "User not exist with this email" ,
                 success: false
               })
+        }
+        if(!user.isVerified){
+            return res.status(400).json({
+                message : "You are not verified user" ,
+                success: false
+            })
         }
         const matchPassword = await bcrypt.compare(password , user?.password)
         if(!matchPassword){

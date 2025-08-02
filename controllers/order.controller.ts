@@ -2,6 +2,8 @@ import { Order } from '../models/order.model';
 import { Restaurant } from './../models/restaurant.model';
 import { Request, Response } from 'express';
 import Stripe from "stripe"
+import dotenv from "dotenv"
+dotenv.config()
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
