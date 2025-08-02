@@ -3,6 +3,8 @@ import { Restaurant } from './../models/restaurant.model';
 import { Request, Response } from 'express';
 import Stripe from "stripe"
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
 type CheckoutSessionRequest = {
     cartItems:{
         menuId : string,
@@ -21,14 +23,7 @@ type CheckoutSessionRequest = {
     restaurantId : string
 }
 
-type MenuItems ={
-    menuId : string,
-    foodName: string , 
-    price  : string,
-    foodImage : string ,
-    quantity: number
 
-}
 
 
 export const createChectoutSession = async (req: Request , res: Response)=>{
@@ -52,7 +47,32 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
         const menuItems = restaurant.menus ;
         const lineItems = createLineItems(checkoutSessionRequest , menuItems)
 
-        const 
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card" ],
+            shipping_address_collection: {
+                allowed_countries: ["US" , "CA" , "BD"] 
+            },
+            line_items: lineItems ,
+            mode: "payment" ,
+            success_url: `${process.env.FRONTEND_URL}/order` ,
+            cancel_url:  `${process.env.FRONTEND_URL}/cart` ,
+            metadata: {
+                orderId : order._id.toString() ,
+                foodImage :  JSON.stringify(menuItems.map((item:any)=> item.foodImage))
+            }
+        })
+        if(!session.url){
+            return res.status(400).json({
+                message : "Error while creating session" ,
+                success: false
+            })
+        }
+        await order.save() 
+        return res.status(200).json({
+            message : "Session created" ,
+            session ,
+            sucesss: true
+        })
     } catch (error) {
         console.log(error)
         return res.status(500).json({
@@ -77,8 +97,35 @@ export const createLineItems = async (checkoutSessionRequest :CheckoutSessionReq
             },
             unit_ammount: menuItem.price * 100
            },
-           quantity: cartItem.quantity
+           quantity: cartItem.quantity ,
+          
         }
     })
     return lineItems
+}
+
+
+
+
+export const getOrders = async (req: Request , res: Response)=>{
+    try {
+        const orders = await Order.find({orderBy: req.userId}).populate("orderBy").populate("restaurant")
+        if(!orders){
+            return res.status(400).json({
+                 message : "Order not found" ,
+                 success: false
+            })
+        }
+        return res.status(200).json({
+            message : "Your orders" ,
+            orders ,
+            success: true
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message :"Internal server error" ,
+            success: false
+        })
+    }
 }
