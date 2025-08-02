@@ -57,7 +57,7 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
             success_url: `${process.env.FRONTEND_URL}/order` ,
             cancel_url:  `${process.env.FRONTEND_URL}/cart` ,
             metadata: {
-                orderId : order._id.toString() ,
+                orderId: (order._id as string).toString(), 
                 foodImage :  JSON.stringify(menuItems.map((item:any)=> item.foodImage))
             }
         })
@@ -71,7 +71,7 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
         return res.status(200).json({
             message : "Session created" ,
             session ,
-            sucesss: true
+            success: true
         })
     } catch (error) {
         console.log(error)
@@ -84,9 +84,9 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
 
 
 
-export const createLineItems = async (checkoutSessionRequest :CheckoutSessionRequest  , menuItems :any )=>{
+export const createLineItems = (checkoutSessionRequest :CheckoutSessionRequest  , menuItems :any )=>{
     const lineItems = checkoutSessionRequest.cartItems.map((cartItem)=>{
-        const menuItem =  menuItems.find((item)=>(item._id.toString() === cartItem.menuId))
+        const menuItem =  menuItems.find((item: any)=>(item._id.toString() === cartItem.menuId))
         if(!menuItem) throw new Error(`Menu item id not found`)
         return {
            price_data: {
@@ -95,7 +95,7 @@ export const createLineItems = async (checkoutSessionRequest :CheckoutSessionReq
                 name : menuItem.foodName,
                 images: [menuItem.foodImage]
             },
-            unit_ammount: Number(menuItem.price) * 100
+            unit_amount: menuItem.price * 100, 
            },
            quantity: cartItem.quantity ,
           
@@ -110,14 +110,14 @@ export const createLineItems = async (checkoutSessionRequest :CheckoutSessionReq
 export const getOrders = async (req: Request , res: Response)=>{
     try {
         const orders = await Order.find({orderBy: req.userId}).populate("orderBy").populate("restaurant")
-        if(!orders){
+        if(orders.length === 0){
             return res.status(400).json({
                  message : "Order not found" ,
                  success: false
             })
         }
         return res.status(200).json({
-            message : "Your orders" ,
+            message : "Your orders" , 
             orders ,
             success: true
         })
