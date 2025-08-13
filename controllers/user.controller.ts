@@ -276,41 +276,38 @@ export const checkAuth = async (req : Request , res: Response)=>{
 }
 
 
-  
+
 
 export const updateProfile = async (req: Request, res: Response) => {
     try {
         const userId = req.userId;
         const user = await User.findById(userId).select("-password");
         if (!user) {
-            return res.status(404).json({
-                message: "User not found",
-                success: false
-            });
+            return res.status(404).json({ message: "User not found", success: false });
         }
 
-        const { fullName, address, city, country, profilePicture } = req.body;
+        const { fullName, address, city, country, email, contact } = req.body;
+        const file = req.file; 
 
         if (fullName) user.fullName = fullName;
+        if (email) user.email = email;
+        if (contact) user.contact = contact;
         if (address) user.address = address;
         if (city) user.city = city;
         if (country) user.country = country;
-        if (profilePicture) {
-            user.profilePicture = await uploadImageOnCloudinary(profilePicture as Express.Multer.File);
-        }    
+        if (file) {
+            user.profilePicture = await uploadImageOnCloudinary(file);
+        }
 
-        await user.save()
+        await user.save();
 
         return res.status(200).json({
             success: true,
             message: "Profile updated successfully",
-            user
+            user,
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({
-            message: "Internal server error",
-            success: false
-        });
+        return res.status(500).json({ message: "Internal server error", success: false });
     }
 };

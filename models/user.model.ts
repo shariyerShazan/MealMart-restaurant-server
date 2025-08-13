@@ -61,7 +61,6 @@ const userSchema = new mongoose.Schema<IUserDocument>({
         default: false
     } ,
 
-       // advance authentication
     lastLogin : {
         type: Date ,
         default: Date.now
