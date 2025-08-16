@@ -6,14 +6,26 @@ import { Order } from "../models/order.model";
 export const createRestaurant = async (req: Request, res: Response) => {
     try {
         const userId = req.userId;
-        const { restaurantName, deliveryTime, cuisines, city, country, coverImage } = req.body;
+        const { restaurantName, deliveryTime, cuisines, city, country } = req.body;
+        const file = req.file; 
 
-        if (!restaurantName || !deliveryTime || !cuisines || !city || !country || !coverImage) {
+        if (!restaurantName || !deliveryTime || !cuisines || !city || !country ) {
             return res.status(400).json({
                 message: "Something is missing",
                 success: false
             });
         }
+        if(!file){
+            return res.status(400).json({
+                message: "Something is missing",
+                success: false
+            });
+        }
+        let coverImageUpload: string | undefined;
+        if (file) {
+             coverImageUpload = await uploadImageOnCloudinary(file);
+        }
+
 
         const restaurant = await Restaurant.findOne({ owner: userId });
         if (restaurant) {
@@ -23,17 +35,14 @@ export const createRestaurant = async (req: Request, res: Response) => {
             });
         }
 
-        // Upload to Cloudinary
-        const cloudinaryUrl = await uploadImageOnCloudinary(coverImage as Express.Multer.File);
-
         const newRestaurant = await Restaurant.create({
             owner: userId,
             restaurantName,
-            deliveryTime,
+            deliveryTime : Number(deliveryTime),
             cuisines: cuisines.split(",").map((c: string) => c.trim()),
             city,
             country,
-            coverImage: cloudinaryUrl
+            coverImage: coverImageUpload
         });
 
         return res.status(201).json({
@@ -84,7 +93,8 @@ export const getOwnRestaurant = async (req : Request, res: Response)=>{
 export const updateRestaurant = async (req : Request , res: Response)=>{
     try {
         const userId = req.userId
-        const { restaurantName, deliveryTime, cuisines, city, country, coverImage } = req.body;
+        const { restaurantName, deliveryTime, cuisines, city, country } = req.body;
+        const file = req.file; 
         const restaurant = await Restaurant.findOne({owner: userId})
         if(!restaurant){
             return res.status(404).json({
@@ -93,14 +103,13 @@ export const updateRestaurant = async (req : Request , res: Response)=>{
             })
         }
        if(restaurantName) {restaurant.restaurantName = restaurantName}
-       if(deliveryTime) {restaurant.deliveryTime = deliveryTime}
+       if(deliveryTime) {
+        restaurant.deliveryTime = Number(deliveryTime);
+      }
        if(cuisines) {restaurant.cuisines = cuisines.split(",").map((c: string) => c.trim())}
        if(city) {restaurant.city = city}
        if(country) {restaurant.country = country}
-       if(coverImage) {
-        const cloudinaryUrl = await uploadImageOnCloudinary(coverImage as Express.Multer.File)
-        restaurant.coverImage = cloudinaryUrl
-        }
+     
         await  restaurant.save()
         return res.status(200).json({
             message : "Update restaurant successfully",
