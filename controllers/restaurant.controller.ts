@@ -109,7 +109,13 @@ export const updateRestaurant = async (req : Request , res: Response)=>{
        if(cuisines) {restaurant.cuisines = cuisines.split(",").map((c: string) => c.trim())}
        if(city) {restaurant.city = city}
        if(country) {restaurant.country = country}
-     
+       
+       let coverImageUpload: string | undefined;;
+       if(file){
+         coverImageUpload = await uploadImageOnCloudinary(file);
+         restaurant.coverImage = coverImageUpload;
+       }
+
         await  restaurant.save()
         return res.status(200).json({
             message : "Update restaurant successfully",
