@@ -166,10 +166,19 @@ export const verifyEmail = async (req : Request , res: Response)=>{
 
 export const logout = async (req : Request , res: Response)=>{
     try {
-        return res.clearCookie("token" ).status(200).json({
-            message: "User Logged out successfully", 
-            success: false
-        })
+        return res
+  .clearCookie("token", {
+    httpOnly: true,
+    secure: true,  
+    sameSite: "none", 
+    path: "/"       
+  })
+  .status(200)
+  .json({
+    message: "User Logged out successfully",
+    success: true
+  });
+
     } catch (error) {
         console.log(error)
         res.status(500).json({
