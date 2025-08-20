@@ -6,16 +6,25 @@ import mongoose from "mongoose";
 
 export const addMenu = async (req: Request, res: Response) => {
     try {
-        const { foodName, description, price, foodImage } = req.body;
-
-        if (!foodName || !description || !price || !foodImage) {
+        const { foodName, description, price, } = req.body;
+        const file = req.file; 
+        if (!foodName || !description || !price ) {
+            return res.status(400).json({
+                message: "Something is missing",
+                success: false
+            });
+        } 
+          if(!file){
             return res.status(400).json({
                 message: "Something is missing",
                 success: false
             });
         }
-
-        const foodImageURL = await uploadImageOnCloudinary(foodImage);
+        let foodImageUpload: string | undefined;
+        if (file) {
+            foodImageUpload = await uploadImageOnCloudinary(file);
+        }
+        
 
         const restaurant = await Restaurant.findOne({ owner: req.userId });
         if (!restaurant) {
@@ -29,7 +38,7 @@ export const addMenu = async (req: Request, res: Response) => {
             foodName,
             description,
             price,
-            foodImage: foodImageURL
+            foodImage: foodImageUpload
         });
 
         restaurant.menus.push(menu._id as mongoose.Schema.Types.ObjectId);

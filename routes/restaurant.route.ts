@@ -14,7 +14,8 @@ router.get("/orders" , isAutenticated ,  getRestaurantOrder)
 
 
 // public route
-router.get("/:restaurantId" ,  getSingleRestaurant)
 router.get("/search" ,  searchRestaurant)
+router.get("/:restaurantId" ,  getSingleRestaurant)
+
 
 export default router
