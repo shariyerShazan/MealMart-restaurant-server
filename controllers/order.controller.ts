@@ -16,13 +16,16 @@ type CheckoutSessionRequest = {
         quantity: number
 
     }[] ,
-    delivaryInfo: {
+    deliveryInfo: {
         email: string ,
+        contact: string ,
         fullName: string ,
-        adress: string ,
+        address: string ,
         city : string ,
+        country : string ,
     } ,
-    restaurantId : string
+    restaurantId : string,
+    totalAmount: number
 }
 
 
@@ -31,6 +34,7 @@ type CheckoutSessionRequest = {
 export const createChectoutSession = async (req: Request , res: Response)=>{
     try {
         const checkoutSessionRequest:CheckoutSessionRequest = req.body
+        console.log("Request body received:", req.body); 
         const restaurant = await Restaurant.findById(checkoutSessionRequest.restaurantId).populate("menus")
         if(!restaurant){
             return res.status(400).json({
@@ -41,9 +45,10 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
         const order = await Order.create({
             orderBy: req.userId ,
             restaurant: restaurant._id ,
-            deliveryInfo: checkoutSessionRequest.delivaryInfo ,
+            deliveryInfo: checkoutSessionRequest.deliveryInfo ,
             cartItems: checkoutSessionRequest.cartItems ,
-            status: "Pending"
+            totalAmount: checkoutSessionRequest.totalAmount,
+            status: "Pending" ,
 
         })
         const menuItems = restaurant.menus ;
