@@ -37,7 +37,7 @@ export const addMenu = async (req: Request, res: Response) => {
         const menu = await Menu.create({
             foodName,
             description,
-            price,
+            price : Number(price),
             foodImage: foodImageUpload
         });
 
@@ -79,7 +79,7 @@ export const editMenu = async (req: Request , res: Response)=>{
             menu.description = description
         }
         if(price){
-            menu.price = price
+            menu.price =  Number(price)
         }
         if(foodImage){
             const foodImageURL = await uploadImageOnCloudinary(foodImage as Express.Multer.File)
