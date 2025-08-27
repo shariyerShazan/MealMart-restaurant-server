@@ -31,10 +31,10 @@ type CheckoutSessionRequest = {
 
 
 
-export const createChectoutSession = async (req: Request , res: Response)=>{
+export const createCheckoutSession = async (req: Request , res: Response)=>{
     try {
         const checkoutSessionRequest:CheckoutSessionRequest = req.body
-        console.log("Request body received:", req.body); 
+        // console.log("Request body received:", req.body); 
         const restaurant = await Restaurant.findById(checkoutSessionRequest.restaurantId).populate("menus")
         if(!restaurant){
             return res.status(400).json({
@@ -78,6 +78,7 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
         return res.status(200).json({
             message : "Session created" ,
             session ,
+            sessionId:   session.id ,
             success: true
         })
     } catch (error) {
@@ -88,6 +89,79 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
         })
     }
 }
+
+
+
+// export const confirmOrder = async (req: Request, res: Response) => {
+//     try {
+//       const { sessionId } = req.query;
+  
+//       const session = await stripe.checkout.sessions.retrieve(sessionId as string);
+//   console.log(session.payment_status)
+//       if (session.payment_status === "paid") {
+//         const orderId = session.metadata?.orderId;
+//         await Order.findByIdAndUpdate(orderId, { status: "Confirmed" });
+//         return res.json({ success: true, message: "Order confirmed!" });
+//       } else {
+//         const orderId = session.metadata?.orderId;
+//         await Order.findByIdAndUpdate(orderId, { status: "NotPayed" });
+//         return res.json({ success: false, message: "Payment not completed." });
+//       }
+//     } catch (err) {
+//       console.log(err);
+//       return res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+//   };
+  
+
+  export const stripeWebhook = async (req: Request, res: Response) => {
+    let event;
+
+    try {
+        const signature = req.headers["stripe-signature"];
+
+        // Construct the payload string for verification
+        const payloadString = JSON.stringify(req.body, null, 2);
+        const secret = process.env.WEBHOOK_ENDPOINT_SECRET!;
+
+        // Generate test header string for event construction
+        const header = stripe.webhooks.generateTestHeaderString({
+            payload: payloadString,
+            secret,
+        });
+
+        // Construct the event using the payload string and header
+        event = stripe.webhooks.constructEvent(payloadString, header, secret);
+    } catch (error: any) {
+        console.error('Webhook error:', error.message);
+        return res.status(400).send(`Webhook error: ${error.message}`);
+    }
+
+    // Handle the checkout session completed event
+    if (event.type === "checkout.session.completed") {
+        try {
+            const session = event.data.object as Stripe.Checkout.Session;
+            const order = await Order.findById(session.metadata?.orderId);
+
+            if (!order) {
+                return res.status(404).json({ message: "Order not found" });
+            }
+
+            // Update the order with the amount and status
+            if (session.amount_total) {
+                order.totalAmount = session.amount_total;
+            }
+            order.status = "confirmed";
+
+            await order.save();
+        } catch (error) {
+            console.error('Error handling event:', error);
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+    // Send a 200 response to acknowledge receipt of the event
+    res.status(200).send();
+};
 
 
 

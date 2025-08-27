@@ -23,7 +23,7 @@ export interface IOrder extends Document {
     deliveryInfo: IDeliveryInfo;
     cartItems: ICartItem[];
     totalAmount: number;
-    status: "Pending" | "Confirmed" | "Preparing" | "OutForDelivery" | "Delivered";
+    status: "NotPayed" | "Pending" | "Confirmed" | "Preparing" | "OutForDelivery" | "Delivered";
 }
 
 const orderSchema = new mongoose.Schema<IOrder>(
@@ -50,9 +50,9 @@ const orderSchema = new mongoose.Schema<IOrder>(
         totalAmount: { type: Number, required: true },
         status: {
             type: String,
-            enum: ["Pending", "Confirmed", "Preparing", "OutForDelivery", "Delivered"],
+            enum: ["NotPayed", "Pending", "Confirmed", "Preparing", "OutForDelivery", "Delivered"],
             default: "Pending",
-        },
+        }
     },
     { timestamps: true }
 );
