@@ -71,7 +71,7 @@ export const createChectoutSession = async (req: Request , res: Response)=>{
         if(!session.url){
             return res.status(400).json({
                 message : "Error while creating session" ,
-                success: false
+                success: false 
             })
         }
         await order.save() 
@@ -135,4 +135,39 @@ export const getOrders = async (req: Request , res: Response)=>{
             success: false
         })
     }
+}
+
+
+
+export const getAdminOrder = async (req : Request , res: Response)=>{
+    try {
+        const restaurant = await Restaurant.findOne({owner: req.userId})
+        if(!restaurant){
+            return res.status(400).json({
+                message : "You Have no restaurant yet" ,
+                success: false
+            })
+        }
+        const orders = await Order.find({restaurant: restaurant._id}).populate({
+            path: "orderBy" ,
+            select: "fullName  email"
+        })
+          if(!orders){
+            return res.status(400).json({
+                message : "None one order currently" ,
+                success: false
+            })
+          }
+          return res.status(200).json({
+            message : "Your Orders", 
+            success: true ,
+            orders
+          })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message :"Internal server error" ,
+            success: false
+        })
+    } 
 }

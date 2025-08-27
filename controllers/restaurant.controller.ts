@@ -178,6 +178,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
                 message: "Order not found"
             })
         }
+
         order.status = status;
         await order.save();
         return res.status(200).json({
