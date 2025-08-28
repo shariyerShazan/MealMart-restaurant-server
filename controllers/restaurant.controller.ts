@@ -148,7 +148,7 @@ export const getRestaurantOrder = async (req: Request, res: Response) => {
                 success: false
             });
         }
-        const orders = await Order.find({ restaurant: restaurant._id  , status: "Confirmed"})
+        const orders = await Order.find({ restaurant: restaurant._id  ,   status: { $ne: "Pending" }})
             .populate({ path: "orderBy", select: "fullName email" })       
             .populate({ path: "restaurant", select: "restaurantName city country" }) 
             .sort({ createdAt: -1 });  
