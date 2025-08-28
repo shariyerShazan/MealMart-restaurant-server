@@ -1,7 +1,7 @@
 import express  from "express";
 import { isAutenticated } from "../middlewares/isAuthenticated";
 import upload from "../middlewares/multer";
-import { createRestaurant, getOwnRestaurant, getRestaurantOrder, getSingleRestaurant, searchRestaurant, updateRestaurant } from "../controllers/restaurant.controller";
+import { createRestaurant, getOwnRestaurant, getRestaurantOrder, getSingleRestaurant, searchRestaurant, updateOrderStatus, updateRestaurant } from "../controllers/restaurant.controller";
 
 const router = express.Router()
 
@@ -11,11 +11,15 @@ router.patch("/" , isAutenticated , upload.single("coverImage") , updateRestaura
 
 router.get("/own" , isAutenticated ,  getOwnRestaurant)
 router.get("/orders" , isAutenticated ,  getRestaurantOrder)
+// update order status
+router.patch("/order/status/:orderId" , isAutenticated , updateOrderStatus)
 
 
 // public route
 router.get("/search" ,  searchRestaurant)
 router.get("/:restaurantId" ,  getSingleRestaurant)
+
+
 
 
 export default router

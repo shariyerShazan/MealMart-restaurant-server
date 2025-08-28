@@ -168,7 +168,7 @@ export const createLineItems = (checkoutSessionRequest :CheckoutSessionRequest  
 
 export const getOrders = async (req: Request , res: Response)=>{
     try {
-        const orders = await Order.find({orderBy: req.userId}).populate("orderBy").populate("restaurant")
+        const orders = await Order.find({orderBy: req.userId , status: "Confirmed"}).populate("orderBy").populate("restaurant")
         if(orders.length === 0){
             return res.status(400).json({
                  message : "Order not found" ,

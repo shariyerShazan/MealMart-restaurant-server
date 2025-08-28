@@ -137,6 +137,10 @@ export const updateRestaurant = async (req : Request , res: Response)=>{
 export const getRestaurantOrder = async (req: Request, res: Response) => {
     try {
         const userId = req.userId;
+        if (!req.userId) {
+            return res.status(401).json({ message: "Unauthorized", success: false });
+          }
+          
         const restaurant = await Restaurant.findOne({ owner: userId });
         if (!restaurant) {
             return res.status(404).json({
@@ -144,8 +148,8 @@ export const getRestaurantOrder = async (req: Request, res: Response) => {
                 success: false
             });
         }
-        const orders = await Order.find({ restaurant: restaurant._id })
-            .populate({ path: "owner", select: "fullName email" })       
+        const orders = await Order.find({ restaurant: restaurant._id  , status: "Confirmed"})
+            .populate({ path: "orderBy", select: "fullName email" })       
             .populate({ path: "restaurant", select: "restaurantName city country" }) 
             .sort({ createdAt: -1 });  
         return res.status(200).json({
@@ -169,7 +173,7 @@ export const getRestaurantOrder = async (req: Request, res: Response) => {
 
 export const updateOrderStatus = async (req: Request, res: Response) => {
     try {
-        const { orderId } = req.params;
+        const  {orderId}  = req.params;
         const { status } = req.body;
         const order = await Order.findById(orderId);
         if (!order) {
