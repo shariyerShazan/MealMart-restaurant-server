@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Restaurant } from "../models/restaurant.model";
 import uploadImageOnCloudinary from "../utils/uploadImageOnCloudinary";
 import { Order } from "../models/order.model";
+import { truncate } from "node:fs";
 
 export const createRestaurant = async (req: Request, res: Response) => {
     try {
@@ -278,3 +279,37 @@ export const getSingleRestaurant = async (req: Request , res: Response)=>{
         });
     }
 }
+
+
+
+
+
+export const getCuisines = async (req: Request, res: Response) => {
+    try {
+      const restaurants = await Restaurant.find();
+  
+
+      let cuisines: string[] = [];
+  
+      restaurants.forEach((restaurant) => {
+        if (restaurant.cuisines && Array.isArray(restaurant.cuisines)) {
+          cuisines.push(...restaurant.cuisines);
+        }
+      });
+  
+      cuisines = [...new Set(cuisines)];
+  
+      return res.status(200).json({
+        message: "Cuisines",
+        cuisines,
+        success: true,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        message: "Internal server error",
+        success: false,
+      });
+    }
+  };
+  
