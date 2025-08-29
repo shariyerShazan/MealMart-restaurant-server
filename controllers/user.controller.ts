@@ -116,7 +116,7 @@ export const login = async (req: Request , res: Response)=>{
         await user.save()
         const userWithoutPassword = await User.findOne({email}).select("-password")
 
-        return res.cookie("token" , token , {httpOnly: true , sameSite: "strict" , maxAge: 7*24*60*60*1000}).status(200).json({
+        return res.cookie("token" , token , {httpOnly: true , sameSite: "strict" , maxAge: 7*24*60*60*1000 , path:'/'}).status(200).json({
             message : `Welcome back ${user.fullName}` ,
             user :  userWithoutPassword ,
             success: true
