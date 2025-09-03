@@ -36,3 +36,4 @@ coverage/
 # Others
 tmp/
 .cache/
+.vercel
