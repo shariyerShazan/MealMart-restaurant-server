@@ -295,11 +295,11 @@ export const updateProfile = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "User not found", success: false });
         }
 
-        const { fullName, address, city, country, email, contact } = req.body;
+        const { fullName, address, city, country, contact } = req.body;
         const file = req.file; 
 
         if (fullName) user.fullName = fullName;
-        if (email) user.email = email;
+        // if (email) user.email = email;
         if (contact) user.contact = contact;
         if (address) user.address = address;
         if (city) user.city = city;
