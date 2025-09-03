@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only ./src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },
@@ -22,7 +22,8 @@
     "mailtrap": "^4.2.0",
     "mongoose": "^8.16.5",
     "multer": "^2.0.2",
-    "stripe": "^18.3.0"
+    "stripe": "^18.3.0",
+    "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.9",
