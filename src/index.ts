@@ -8,15 +8,24 @@ import userRoutes from "./routes/user.route"
 import restaurantRoutes from "./routes/restaurant.route"
 import menuRoutes from "./routes/menu.route"
 import orderRoutes from "./routes/order.route"
+// import path from "path"
 
 const app = express();
+
+
+// const DIRNAME = path.resolve()
+
+
 
 // middlewares here
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: [
+        "http://localhost:5174",
+        "http://localhost:5173"
+    ],
     credentials: true
 }));
 
@@ -30,6 +39,8 @@ app.use("/api/restaurants" , restaurantRoutes)
 app.use("/api/menus" , menuRoutes)
 app.use("/api/orders" , orderRoutes)
 
+
+// app.use(express.static(path.join(DIRNAME, "/MealMart/dist")))
 
 
 const PORT = process.env.PORT || 7001;
