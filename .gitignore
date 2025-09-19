@@ -5,7 +5,6 @@ yarn-debug.log
 yarn-error.log
 
 # Environment files
-.env
 .env.local
 .env.development.local
 .env.test.local
@@ -17,6 +16,7 @@ logs
 logs/*
 pids
 *.pid
+temp_auto_push.bat
 *.seed
 *.pid.lock
 
@@ -25,7 +25,6 @@ dist/
 build/
 
 # IDE / Editor
-.vscode/
 .idea/
 *.swp
 .DS_Store
@@ -37,3 +36,5 @@ coverage/
 tmp/
 .cache/
 .vercel
+.gitignore
+temp_interactive_push.bat
