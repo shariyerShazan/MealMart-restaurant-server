@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "node api.js && ts-node-dev --respawn --transpile-only ./src/index.ts",
-    "build": "node api.js && tsc",
-    "start": "node api.js && node dist/index.js"
+    "dev": "node init && ts-node-dev --respawn --transpile-only ./src/index.ts",
+    "build": "node init && tsc",
+    "start": "node init && node dist/index.js"
   },
   "keywords": [],
   "author": "",
